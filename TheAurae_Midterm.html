@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="The Aurae — Parisian-Asian Fusion Bakery. Artisan cakes, pastries, and healthy treats crafted with love.">
+    <title>The Aurae | The Art of Artisan Fusion</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- AOS - Animate On Scroll -->
+    <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cream:      '#FDF5E6',
+                        'cream-d':  '#F8EDD8',
+                        beige:      '#F1E3D3',
+                        'beige-d':  '#E0CDB8',
+                        walnut:     '#4A3B32',
+                        'walnut-l': '#6B5A4E',
+                        'walnut-d': '#2C231E',
+                        accent:     '#C8956C',
+                        'accent-l': '#D4A97E',
+                    },
+                    fontFamily: {
+                        serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+                        sans:  ['Outfit', 'system-ui', 'sans-serif'],
+                    },
+                    keyframes: {
+                        'slide-up':   { from: { opacity: 0, transform: 'translateY(30px)' }, to: { opacity: 1, transform: 'translateY(0)' }},
+                        'fade-in':    { from: { opacity: 0 }, to: { opacity: 1 }},
+                        'scale-in':   { from: { opacity: 0, transform: 'scale(0.95)' }, to: { opacity: 1, transform: 'scale(1)' }},
+                        'toast-in':   { from: { opacity: 0, transform: 'translateX(100%)' }, to: { opacity: 1, transform: 'translateX(0)' }},
+                        'toast-out':  { from: { opacity: 1, transform: 'translateX(0)' }, to: { opacity: 0, transform: 'translateX(100%)' }},
+                        'bounce-sm':  { '0%,100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-6px)' }},
+                        'pulse-ring': { '0%':   { transform: 'scale(1)', opacity: 1 }, '100%': { transform: 'scale(1.5)', opacity: 0 }},
+                        'marquee':    { '0%': { transform: 'translateX(0)' }, '100%': { transform: 'translateX(-50%)' }},
+                    },
+                    animation: {
+                        'slide-up':   'slide-up 0.8s cubic-bezier(0.16,1,0.3,1) forwards',
+                        'fade-in':    'fade-in 0.6s ease forwards',
+                        'scale-in':   'scale-in 0.5s cubic-bezier(0.16,1,0.3,1) forwards',
+                        'toast-in':   'toast-in 0.5s cubic-bezier(0.16,1,0.3,1) forwards',
+                        'toast-out':  'toast-out 0.4s ease forwards',
+                        'bounce-sm':  'bounce-sm 2s ease-in-out infinite',
+                        'pulse-ring': 'pulse-ring 1.5s ease-out infinite',
+                        'marquee':    'marquee 30s linear infinite',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Base */
+        body { background-color: #FDF5E6; color: #4A3B32; }
+        ::selection { background: #4A3B32; color: #FDF5E6; }
+
+        /* Glass Navigation */
+        .nav-glass {
+            background: rgba(253, 245, 230, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(74,59,50,0.06);
+        }
+        .nav-scrolled { box-shadow: 0 4px 30px rgba(74,59,50,0.08); }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: #FDF5E6; }
+        ::-webkit-scrollbar-thumb { background: #C8956C; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4A3B32; }
+
+        /* Cart Overlay & Sidebar */
+        #cart-overlay {
+            opacity: 0; visibility: hidden;
+            transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+            backdrop-filter: blur(6px);
+        }
+        #cart-overlay.active { opacity: 1; visibility: visible; }
+        #cart-sidebar {
+            transform: translateX(100%);
+            transition: transform 0.5s cubic-bezier(0.16,1,0.3,1);
+        }
+        #cart-sidebar.active { transform: translateX(0); }
+
+        /* Modal */
+        #product-modal-overlay {
+            opacity: 0; visibility: hidden;
+            transition: all 0.35s ease;
+            backdrop-filter: blur(8px);
+        }
+        #product-modal-overlay.active { opacity: 1; visibility: visible; }
+        #product-modal {
+            transform: scale(0.92) translateY(20px); opacity: 0;
+            transition: all 0.4s cubic-bezier(0.16,1,0.3,1);
+        }
+        #product-modal-overlay.active #product-modal { transform: scale(1) translateY(0); opacity: 1; }
+
+        /* Mobile Menu */
+        #mobile-menu {
+            transform: translateX(-100%);
+            transition: transform 0.45s cubic-bezier(0.16,1,0.3,1);
+        }
+        #mobile-menu.active { transform: translateX(0); }
+        #mobile-menu-overlay {
+            opacity: 0; visibility: hidden;
+            transition: all 0.35s ease;
+        }
+        #mobile-menu-overlay.active { opacity: 1; visibility: visible; }
+
+        /* Hover / Interaction */
+        .card-lift { transition: all 0.45s cubic-bezier(0.16,1,0.3,1); }
+        .card-lift:hover { transform: translateY(-10px); box-shadow: 0 30px 60px -15px rgba(74,59,50,0.12); }
+        .img-zoom { transition: transform 0.7s cubic-bezier(0.16,1,0.3,1); }
+        .card-lift:hover .img-zoom, .group:hover .img-zoom { transform: scale(1.08); }
+        .btn-primary {
+            transition: all 0.4s cubic-bezier(0.16,1,0.3,1);
+        }
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 14px 28px -8px rgba(74,59,50,0.35);
+        }
+
+        /* Category Filter */
+        .filter-btn { transition: all 0.3s ease; }
+        .filter-btn.active {
+            background: #4A3B32; color: #FDF5E6;
+        }
+
+        /* Marquee */
+        .marquee-track { display: flex; width: max-content; }
+
+        /* Toast Container */
+        #toast-container { pointer-events: none; }
+        #toast-container > div { pointer-events: auto; }
+
+        /* Back to top */
+        #back-to-top {
+            opacity: 0; visibility: hidden;
+            transition: all 0.4s ease;
+        }
+        #back-to-top.visible { opacity: 1; visibility: visible; }
+    </style>
+</head>
+<body class="antialiased font-sans overflow-x-hidden">
+
+    <!-- ===== MARQUEE BANNER ===== -->
+    <div class="bg-walnut text-cream py-2 overflow-hidden">
+        <div class="marquee-track animate-marquee whitespace-nowrap">
+            <span class="mx-12 text-xs tracking-[0.25em] uppercase font-medium">✦ Free delivery on orders over $50 ✦ Freshly baked daily ✦ Parisian-Asian Fusion ✦ Artisan ingredients ✦ Vegan & Gluten-free options available ✦ Order before 2 PM for same-day delivery ✦</span>
+            <span class="mx-12 text-xs tracking-[0.25em] uppercase font-medium">✦ Free delivery on orders over $50 ✦ Freshly baked daily ✦ Parisian-Asian Fusion ✦ Artisan ingredients ✦ Vegan & Gluten-free options available ✦ Order before 2 PM for same-day delivery ✦</span>
+        </div>
+    </div>
+
+    <!-- ===== NAVIGATION ===== -->
+    <nav id="navbar" class="fixed w-full z-50 nav-glass transition-all duration-500 py-4">
+        <div class="max-w-7xl mx-auto px-6 flex justify-between items-center">
+            <!-- Mobile Hamburger -->
+            <button id="mobile-menu-btn" class="md:hidden text-walnut p-1" onclick="toggleMobileMenu()">
+                <i data-lucide="menu" class="w-7 h-7"></i>
+            </button>
+
+            <a href="#" class="font-serif text-3xl lg:text-4xl font-bold text-walnut tracking-wide">The Aurae<span class="text-accent">.</span></a>
+
+            <div class="hidden md:flex space-x-10 items-center text-[11px] font-semibold tracking-[0.2em] uppercase text-walnut-d">
+                <a href="#story" class="relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-[2px] after:bg-accent after:transition-all after:duration-300 hover:after:w-full hover:text-accent transition-colors">Story</a>
+                <a href="#categories" class="relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-[2px] after:bg-accent after:transition-all after:duration-300 hover:after:w-full hover:text-accent transition-colors">Categories</a>
+                <a href="#shop" class="relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-[2px] after:bg-accent after:transition-all after:duration-300 hover:after:w-full hover:text-accent transition-colors">Shop</a>
+                <a href="#testimonials" class="relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-[2px] after:bg-accent after:transition-all after:duration-300 hover:after:w-full hover:text-accent transition-colors">Reviews</a>
+                <a href="#about" class="relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-[2px] after:bg-accent after:transition-all after:duration-300 hover:after:w-full hover:text-accent transition-colors">About</a>
+            </div>
+
+            <button onclick="toggleCart()" class="relative text-walnut hover:text-accent transition-colors p-2 group" aria-label="Open cart">
+                <i data-lucide="shopping-bag" class="w-6 h-6 group-hover:-translate-y-0.5 transition-transform"></i>
+                <span id="nav-cart-count" class="absolute -top-1 -right-1 bg-accent text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-bold shadow-lg transition-transform hover:scale-110">0</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ===== MOBILE MENU ===== -->
+    <div id="mobile-menu-overlay" class="fixed inset-0 bg-walnut-d/50 z-[55]" onclick="toggleMobileMenu()"></div>
+    <div id="mobile-menu" class="fixed top-0 left-0 w-72 h-full bg-cream z-[56] shadow-2xl flex flex-col p-8 pt-20">
+        <button onclick="toggleMobileMenu()" class="absolute top-6 right-6 text-walnut"><i data-lucide="x" class="w-6 h-6"></i></button>
+        <a href="#" class="font-serif text-3xl font-bold text-walnut mb-12">The Aurae<span class="text-accent">.</span></a>
+        <nav class="flex flex-col space-y-6 text-sm font-semibold tracking-[0.15em] uppercase text-walnut-d">
+            <a href="#story" onclick="toggleMobileMenu()" class="hover:text-accent transition-colors border-b border-beige pb-4">Story</a>
+            <a href="#categories" onclick="toggleMobileMenu()" class="hover:text-accent transition-colors border-b border-beige pb-4">Categories</a>
+            <a href="#shop" onclick="toggleMobileMenu()" class="hover:text-accent transition-colors border-b border-beige pb-4">Shop</a>
+            <a href="#testimonials" onclick="toggleMobileMenu()" class="hover:text-accent transition-colors border-b border-beige pb-4">Reviews</a>
+            <a href="#about" onclick="toggleMobileMenu()" class="hover:text-accent transition-colors">About Us</a>
+        </nav>
+        <div class="mt-auto flex gap-4">
+            <a href="#" class="text-walnut/60 hover:text-accent transition-colors"><i data-lucide="instagram" class="w-5 h-5"></i></a>
+            <a href="#" class="text-walnut/60 hover:text-accent transition-colors"><i data-lucide="facebook" class="w-5 h-5"></i></a>
+            <a href="#" class="text-walnut/60 hover:text-accent transition-colors"><i data-lucide="twitter" class="w-5 h-5"></i></a>
+        </div>
+    </div>
+
+    <!-- ===== HERO ===== -->
+    <section id="hero" class="relative min-h-screen flex items-center overflow-hidden pt-20">
+        <!-- Decorative circle -->
+        <div class="absolute top-1/2 right-0 -translate-y-1/2 w-[700px] h-[700px] bg-beige/40 rounded-full blur-[120px] -z-10"></div>
+        <div class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-accent/10 rounded-full blur-[100px] -z-10"></div>
+
+        <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 lg:gap-20 items-center w-full">
+            <div data-aos="fade-right" data-aos-duration="1000">
+                <div class="flex items-center gap-3 mb-8">
+                    <span class="w-12 h-px bg-accent"></span>
+                    <p class="text-xs tracking-[0.3em] font-semibold uppercase text-accent">Parisian-Asian Fusion</p>
+                </div>
+                <h1 class="font-serif text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold leading-[1.05] mb-8 text-walnut-d">
+                    The Aurae:<br>
+                    <span class="italic font-medium text-walnut">The Art of<br>Artisan Fusion</span>
+                </h1>
+                <p class="text-lg md:text-xl text-walnut/70 mb-12 max-w-lg font-light leading-relaxed">
+                    Where subtle Asian botanicals meet the masterful execution of classical French pâtisserie. A symphony of flavors in every bite.
+                </p>
+                <div class="flex flex-wrap gap-4">
+                    <a href="#shop" class="inline-flex items-center px-10 py-5 bg-walnut text-cream font-semibold tracking-widest uppercase text-xs btn-primary hover:bg-walnut-d rounded-sm shadow-xl shadow-walnut/15">
+                        Shop Now <i data-lucide="arrow-right" class="ml-3 w-4 h-4"></i>
+                    </a>
+                    <a href="#story" class="inline-flex items-center px-10 py-5 border-2 border-walnut/20 text-walnut font-semibold tracking-widest uppercase text-xs hover:border-walnut hover:bg-walnut hover:text-cream transition-all duration-300 rounded-sm">
+                        Our Story
+                    </a>
+                </div>
+
+                <!-- Quick stats -->
+                <div class="flex gap-10 mt-16 pt-8 border-t border-walnut/10">
+                    <div>
+                        <p class="font-serif text-4xl font-bold text-walnut-d">10+</p>
+                        <p class="text-xs text-walnut/60 uppercase tracking-wider mt-1">Signature Items</p>
+                    </div>
+                    <div>
+                        <p class="font-serif text-4xl font-bold text-walnut-d">2K+</p>
+                        <p class="text-xs text-walnut/60 uppercase tracking-wider mt-1">Happy Customers</p>
+                    </div>
+                    <div>
+                        <p class="font-serif text-4xl font-bold text-walnut-d">4.9</p>
+                        <p class="text-xs text-walnut/60 uppercase tracking-wider mt-1">⭐ Rating</p>
+                    </div>
+                </div>
+            </div>
+            <div data-aos="fade-left" data-aos-duration="1000" data-aos-delay="200" class="relative">
+                <div class="absolute -inset-8 bg-beige/50 rounded-full blur-[60px] -z-10"></div>
+                <img src="Hero%20.jpg" alt="Artisan Pastries Display" class="w-full h-[550px] md:h-[650px] object-cover rounded-[200px_200px_20px_20px] shadow-2xl shadow-walnut/10 border border-white/50">
+                <!-- Floating badge -->
+                <div class="absolute -bottom-4 -left-4 md:bottom-8 md:-left-8 bg-white rounded-2xl shadow-xl p-5 flex items-center gap-4 animate-bounce-sm">
+                    <div class="w-14 h-14 bg-accent/10 rounded-full flex items-center justify-center">
+                        <i data-lucide="award" class="w-7 h-7 text-accent"></i>
+                    </div>
+                    <div>
+                        <p class="font-serif text-lg font-bold text-walnut-d">Best Bakery</p>
+                        <p class="text-xs text-walnut/60">2025 & 2026</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scroll indicator -->
+        <div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-50">
+            <p class="text-[10px] uppercase tracking-[0.3em] text-walnut/60">Scroll</p>
+            <i data-lucide="chevron-down" class="w-5 h-5 text-walnut/60 animate-bounce"></i>
+        </div>
+    </section>
+
+    <!-- ===== STORY ===== -->
+    <section id="story" class="py-28 md:py-36 bg-beige/20 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-accent/5 rounded-full blur-[100px] -z-10"></div>
+        <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 lg:gap-24 items-center">
+            <div class="relative" data-aos="fade-up" data-aos-duration="800">
+                <div class="absolute -inset-4 border border-accent/20 translate-x-5 translate-y-5 rounded-lg"></div>
+                <img src="Story.jpg" alt="Baker crafting pastries" class="relative z-10 w-full h-[550px] object-cover shadow-xl rounded-lg">
+                <!-- Floating quote -->
+                <div class="absolute -bottom-6 -right-6 md:bottom-6 md:-right-10 bg-walnut text-cream p-6 rounded-xl shadow-2xl max-w-[240px] z-20" data-aos="fade-left" data-aos-delay="400">
+                    <i data-lucide="quote" class="w-6 h-6 text-accent mb-3"></i>
+                    <p class="text-sm italic font-light leading-relaxed">"Where East meets West on a plate of pure artistry."</p>
+                </div>
+            </div>
+            <div data-aos="fade-up" data-aos-delay="200" data-aos-duration="800">
+                <div class="flex items-center gap-4 mb-6">
+                    <span class="w-12 h-px bg-accent"></span>
+                    <p class="text-xs tracking-[0.2em] uppercase text-accent font-semibold">Our Heritage</p>
+                </div>
+                <h2 class="font-serif text-4xl md:text-5xl lg:text-6xl font-bold mb-8 text-walnut-d leading-tight">Bridging Classical Techniques & Contemporary Taste</h2>
+                <div class="space-y-6 text-walnut/75 text-lg font-light leading-relaxed">
+                    <p>Born from a passion for both vibrant Asian ingredients and the disciplined art of French baking, The Aurae is a celebration of cultural harmony. Every creation in our kitchen tells a story of embrace and precision.</p>
+                    <p>We use the finest matcha from Uji, yuzu from Kochi, and butter from Normandy. True aesthetic pleasure lies not just in visual perfection, but in the surprising, lingering notes woven into delicate buttery layers.</p>
+                </div>
+                <div class="flex gap-6 mt-10">
+                    <div class="text-center">
+                        <div class="w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center mb-3 mx-auto">
+                            <i data-lucide="leaf" class="w-7 h-7 text-accent"></i>
+                        </div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-walnut">Organic</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center mb-3 mx-auto">
+                            <i data-lucide="heart" class="w-7 h-7 text-accent"></i>
+                        </div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-walnut">Handmade</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center mb-3 mx-auto">
+                            <i data-lucide="sparkles" class="w-7 h-7 text-accent"></i>
+                        </div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-walnut">Premium</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CATEGORIES ===== -->
+    <section id="categories" class="py-28 md:py-36 max-w-7xl mx-auto px-6">
+        <div class="text-center mb-16" data-aos="fade-up">
+            <p class="text-xs tracking-[0.3em] font-semibold uppercase text-accent mb-4">Explore</p>
+            <h2 class="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-walnut-d mb-6">Curated Collections</h2>
+            <div class="w-16 h-px bg-accent mx-auto"></div>
+        </div>
+        <div class="grid md:grid-cols-3 gap-6 lg:gap-8">
+            <a href="#shop" onclick="filterProducts('Signature Cake')" class="group block relative overflow-hidden h-[450px] md:h-[520px] rounded-2xl card-lift" data-aos="fade-up" data-aos-delay="100">
+                <img src="Signature%20Cakes.jpg" alt="Signature Cakes" class="w-full h-full object-cover img-zoom">
+                <div class="absolute inset-0 bg-gradient-to-t from-walnut-d/90 via-walnut-d/20 to-transparent flex flex-col justify-end p-8 md:p-10">
+                    <span class="text-accent text-xs tracking-[0.2em] uppercase font-semibold mb-2">Collection 01</span>
+                    <h3 class="font-serif text-3xl md:text-4xl text-cream mb-3">Signature Cakes</h3>
+                    <p class="text-cream/70 text-sm mb-4 max-w-[280px]">Luxurious layered cakes with Asian fusion fillings.</p>
+                    <span class="text-cream/90 text-xs tracking-[0.2em] uppercase font-semibold flex items-center gap-2 group-hover:text-accent transition-colors">
+                        Explore <i data-lucide="arrow-right" class="w-3 h-3 group-hover:translate-x-2 transition-transform"></i>
+                    </span>
+                </div>
+            </a>
+            <a href="#shop" onclick="filterProducts('French Pastry')" class="group block relative overflow-hidden h-[450px] md:h-[520px] rounded-2xl card-lift" data-aos="fade-up" data-aos-delay="200">
+                <img src="French%20Pastries.jpg" alt="French Pastries" class="w-full h-full object-cover img-zoom">
+                <div class="absolute inset-0 bg-gradient-to-t from-walnut-d/90 via-walnut-d/20 to-transparent flex flex-col justify-end p-8 md:p-10">
+                    <span class="text-accent text-xs tracking-[0.2em] uppercase font-semibold mb-2">Collection 02</span>
+                    <h3 class="font-serif text-3xl md:text-4xl text-cream mb-3">French Pastries</h3>
+                    <p class="text-cream/70 text-sm mb-4 max-w-[280px]">Classic French techniques with an Eastern twist.</p>
+                    <span class="text-cream/90 text-xs tracking-[0.2em] uppercase font-semibold flex items-center gap-2 group-hover:text-accent transition-colors">
+                        Explore <i data-lucide="arrow-right" class="w-3 h-3 group-hover:translate-x-2 transition-transform"></i>
+                    </span>
+                </div>
+            </a>
+            <a href="#shop" onclick="filterProducts('Healthy Option')" class="group block relative overflow-hidden h-[450px] md:h-[520px] rounded-2xl card-lift" data-aos="fade-up" data-aos-delay="300">
+                <img src="Healthy%20Options.jpg" alt="Healthy Options" class="w-full h-full object-cover img-zoom">
+                <div class="absolute inset-0 bg-gradient-to-t from-walnut-d/90 via-walnut-d/20 to-transparent flex flex-col justify-end p-8 md:p-10">
+                    <span class="text-accent text-xs tracking-[0.2em] uppercase font-semibold mb-2">Collection 03</span>
+                    <h3 class="font-serif text-3xl md:text-4xl text-cream mb-3">Healthy Options</h3>
+                    <p class="text-cream/70 text-sm mb-4 max-w-[280px]">Vegan, gluten-free, and guilt-free indulgence.</p>
+                    <span class="text-cream/90 text-xs tracking-[0.2em] uppercase font-semibold flex items-center gap-2 group-hover:text-accent transition-colors">
+                        Explore <i data-lucide="arrow-right" class="w-3 h-3 group-hover:translate-x-2 transition-transform"></i>
+                    </span>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <!-- ===== SHOP (PRODUCTS) ===== -->
+    <section id="shop" class="py-28 md:py-36 bg-white/60 border-y border-walnut/5">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-12" data-aos="fade-up">
+                <p class="text-xs tracking-[0.3em] font-semibold uppercase text-accent mb-4">Our Patisserie</p>
+                <h2 class="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-walnut-d mb-6">Handcrafted Creations</h2>
+                <p class="text-walnut/60 font-light text-lg max-w-2xl mx-auto">10 signature creations, crafted daily with precision, love, and the finest ingredients from around the world.</p>
+            </div>
+
+            <!-- Filter Buttons -->
+            <div class="flex flex-wrap justify-center gap-3 mb-14" data-aos="fade-up" data-aos-delay="100">
+                <button class="filter-btn active px-6 py-2.5 rounded-full text-xs font-semibold tracking-[0.15em] uppercase border border-walnut/15 bg-walnut text-cream" onclick="filterProducts('All')">All</button>
+                <button class="filter-btn px-6 py-2.5 rounded-full text-xs font-semibold tracking-[0.15em] uppercase border border-walnut/15 text-walnut hover:bg-walnut hover:text-cream" onclick="filterProducts('Signature Cake')">Signature Cakes</button>
+                <button class="filter-btn px-6 py-2.5 rounded-full text-xs font-semibold tracking-[0.15em] uppercase border border-walnut/15 text-walnut hover:bg-walnut hover:text-cream" onclick="filterProducts('French Pastry')">French Pastries</button>
+                <button class="filter-btn px-6 py-2.5 rounded-full text-xs font-semibold tracking-[0.15em] uppercase border border-walnut/15 text-walnut hover:bg-walnut hover:text-cream" onclick="filterProducts('Healthy Option')">Healthy Options</button>
+            </div>
+
+            <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-7">
+                <!-- Dynamically injected -->
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== TESTIMONIALS ===== -->
+    <section id="testimonials" class="py-28 md:py-36 max-w-7xl mx-auto px-6">
+        <div class="text-center mb-16" data-aos="fade-up">
+            <p class="text-xs tracking-[0.3em] font-semibold uppercase text-accent mb-4">Testimonials</p>
+            <h2 class="font-serif text-4xl md:text-5xl font-bold text-walnut-d mb-6">What Our Guests Say</h2>
+            <div class="w-16 h-px bg-accent mx-auto"></div>
+        </div>
+        <div class="grid md:grid-cols-3 gap-8">
+            <div class="bg-white rounded-2xl p-8 shadow-sm border border-walnut/5 card-lift" data-aos="fade-up" data-aos-delay="100">
+                <div class="flex gap-1 mb-4 text-accent">⭐⭐⭐⭐⭐</div>
+                <p class="text-walnut/80 font-light leading-relaxed mb-6 italic">"The Yuzu Matcha Opéra was an absolute revelation. The balance of Japanese matcha with French technique is unlike anything I've tasted. Pure art on a plate!"</p>
+                <div class="flex items-center gap-4 pt-4 border-t border-walnut/5">
+                    <div class="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center font-serif text-xl font-bold text-accent">M</div>
+                    <div>
+                        <p class="font-semibold text-walnut-d text-sm">Minh Tú</p>
+                        <p class="text-xs text-walnut/50">Regular Customer</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl p-8 shadow-sm border border-walnut/5 card-lift" data-aos="fade-up" data-aos-delay="200">
+                <div class="flex gap-1 mb-4 text-accent">⭐⭐⭐⭐⭐</div>
+                <p class="text-walnut/80 font-light leading-relaxed mb-6 italic">"Ordered a Taro Mont Blanc for my birthday and the presentation was stunning. My guests couldn't believe it was from a local bakery. The Aurae is truly exceptional."</p>
+                <div class="flex items-center gap-4 pt-4 border-t border-walnut/5">
+                    <div class="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center font-serif text-xl font-bold text-accent">L</div>
+                    <div>
+                        <p class="font-semibold text-walnut-d text-sm">Linh Đặng</p>
+                        <p class="text-xs text-walnut/50">Food Blogger</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl p-8 shadow-sm border border-walnut/5 card-lift" data-aos="fade-up" data-aos-delay="300">
+                <div class="flex gap-1 mb-4 text-accent">⭐⭐⭐⭐⭐</div>
+                <p class="text-walnut/80 font-light leading-relaxed mb-6 italic">"As someone with dietary restrictions, finding a bakery with real gluten-free options is a dream. Their Jasmine Panna Cotta is heavenly — not just good 'for vegan,' but genuinely incredible."</p>
+                <div class="flex items-center gap-4 pt-4 border-t border-walnut/5">
+                    <div class="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center font-serif text-xl font-bold text-accent">A</div>
+                    <div>
+                        <p class="font-semibold text-walnut-d text-sm">An Phạm</p>
+                        <p class="text-xs text-walnut/50">Verified Buyer</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== ABOUT US ===== -->
+    <section id="about" class="py-28 md:py-36 bg-beige/20 relative overflow-hidden">
+        <div class="absolute bottom-0 left-0 w-[500px] h-[500px] bg-accent/5 rounded-full blur-[100px] -z-10"></div>
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16" data-aos="fade-up">
+                <p class="text-xs tracking-[0.3em] font-semibold uppercase text-accent mb-4">Our Team</p>
+                <h2 class="font-serif text-4xl md:text-5xl font-bold text-walnut-d mb-6">The Creative Minds Behind The Aurae</h2>
+                <p class="text-walnut/60 font-light max-w-xl mx-auto">A passionate team of creators, strategists, and artisans dedicated to redefining modern patisserie.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
+                <!-- Member 1 -->
+                <div class="bg-white rounded-2xl p-8 text-center card-lift shadow-sm border border-walnut/5 group" data-aos="fade-up" data-aos-delay="100">
+                    <div class="w-40 h-40 mx-auto rounded-full overflow-hidden mb-6 ring-4 ring-beige group-hover:ring-accent transition-all duration-500 shadow-lg">
+                        <img src="han.jpg" alt="Phan Nguyễn Gia Hân" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                    </div>
+                    <h3 class="font-serif text-2xl font-bold text-walnut-d mb-1">Phan Nguyễn Gia Hân</h3>
+                    <p class="text-accent font-medium text-sm tracking-wide mb-3">Creative Director</p>
+                    <p class="text-walnut/40 text-xs font-mono bg-beige/40 inline-block px-3 py-1 rounded-full mb-4">723K0039</p>
+                    <div class="flex justify-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <a href="#" class="w-8 h-8 rounded-full bg-walnut/5 flex items-center justify-center hover:bg-accent hover:text-white transition-all text-walnut/40"><i data-lucide="linkedin" class="w-3.5 h-3.5"></i></a>
+                        <a href="#" class="w-8 h-8 rounded-full bg-walnut/5 flex items-center justify-center hover:bg-accent hover:text-white transition-all text-walnut/40"><i data-lucide="mail" class="w-3.5 h-3.5"></i></a>
+                    </div>
+                </div>
+
+                <!-- Member 2 -->
+                <div class="bg-white rounded-2xl p-8 text-center card-lift shadow-sm border border-walnut/5 group" data-aos="fade-up" data-aos-delay="200">
+                    <div class="w-40 h-40 mx-auto rounded-full overflow-hidden mb-6 ring-4 ring-beige group-hover:ring-accent transition-all duration-500 shadow-lg">
+                        <img src="thien.jpg" alt="Hồ Nhật Thiên" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                    </div>
+                    <h3 class="font-serif text-2xl font-bold text-walnut-d mb-1">Hồ Nhật Thiên</h3>
+                    <p class="text-accent font-medium text-sm tracking-wide mb-3">Operations Manager</p>
+                    <p class="text-walnut/40 text-xs font-mono bg-beige/40 inline-block px-3 py-1 rounded-full mb-4">723K0047</p>
+                    <div class="flex justify-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <a href="#" class="w-8 h-8 rounded-full bg-walnut/5 flex items-center justify-center hover:bg-accent hover:text-white transition-all text-walnut/40"><i data-lucide="linkedin" class="w-3.5 h-3.5"></i></a>
+                        <a href="#" class="w-8 h-8 rounded-full bg-walnut/5 flex items-center justify-center hover:bg-accent hover:text-white transition-all text-walnut/40"><i data-lucide="mail" class="w-3.5 h-3.5"></i></a>
+                    </div>
+                </div>
+
+                <!-- Member 3 -->
+                <div class="bg-white rounded-2xl p-8 text-center card-lift shadow-sm border border-walnut/5 group" data-aos="fade-up" data-aos-delay="300">
+                    <div class="w-40 h-40 mx-auto rounded-full overflow-hidden mb-6 ring-4 ring-beige group-hover:ring-accent transition-all duration-500 shadow-lg">
+                        <img src="phuong.jpg" alt="Nguyễn Nhã Phương" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                    </div>
+                    <h3 class="font-serif text-2xl font-bold text-walnut-d mb-1">Nguyễn Nhã Phương</h3>
+                    <p class="text-accent font-medium text-sm tracking-wide mb-3">Marketing Strategist</p>
+                    <p class="text-walnut/40 text-xs font-mono bg-beige/40 inline-block px-3 py-1 rounded-full mb-4">723K0044</p>
+                    <div class="flex justify-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <a href="#" class="w-8 h-8 rounded-full bg-walnut/5 flex items-center justify-center hover:bg-accent hover:text-white transition-all text-walnut/40"><i data-lucide="linkedin" class="w-3.5 h-3.5"></i></a>
+                        <a href="#" class="w-8 h-8 rounded-full bg-walnut/5 flex items-center justify-center hover:bg-accent hover:text-white transition-all text-walnut/40"><i data-lucide="mail" class="w-3.5 h-3.5"></i></a>
+                    </div>
+                </div>
+
+                <!-- Member 4 -->
+                <div class="bg-white rounded-2xl p-8 text-center card-lift shadow-sm border border-walnut/5 group" data-aos="fade-up" data-aos-delay="400">
+                    <div class="w-40 h-40 mx-auto rounded-full overflow-hidden mb-6 ring-4 ring-beige group-hover:ring-accent transition-all duration-500 shadow-lg">
+                        <img src="hieu.jpg" alt="Hồ Minh Hiếu" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                    </div>
+                    <h3 class="font-serif text-2xl font-bold text-walnut-d mb-1">Hồ Minh Hiếu</h3>
+                    <p class="text-accent font-medium text-sm tracking-wide mb-3">Visual Designer</p>
+                    <p class="text-walnut/40 text-xs font-mono bg-beige/40 inline-block px-3 py-1 rounded-full mb-4">723K0040</p>
+                    <div class="flex justify-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <a href="#" class="w-8 h-8 rounded-full bg-walnut/5 flex items-center justify-center hover:bg-accent hover:text-white transition-all text-walnut/40"><i data-lucide="linkedin" class="w-3.5 h-3.5"></i></a>
+                        <a href="#" class="w-8 h-8 rounded-full bg-walnut/5 flex items-center justify-center hover:bg-accent hover:text-white transition-all text-walnut/40"><i data-lucide="mail" class="w-3.5 h-3.5"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== NEWSLETTER ===== -->
+    <section class="py-24 max-w-4xl mx-auto px-6 text-center">
+        <div class="bg-walnut rounded-3xl p-12 md:p-16 relative overflow-hidden" data-aos="zoom-in" data-aos-duration="600">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-accent/20 rounded-full blur-[80px]"></div>
+            <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full blur-[60px]"></div>
+            <div class="relative z-10">
+                <i data-lucide="mail" class="w-10 h-10 text-accent mx-auto mb-6"></i>
+                <h2 class="font-serif text-3xl md:text-4xl font-bold text-cream mb-4">Stay in the Loop</h2>
+                <p class="text-cream/60 font-light mb-8 max-w-md mx-auto">Subscribe for early access to seasonal menus, exclusive offers, and behind-the-scenes stories.</p>
+                <form onsubmit="handleNewsletter(event)" class="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto">
+                    <input type="email" placeholder="your@email.com" required class="flex-1 px-6 py-4 bg-white/10 border border-white/20 rounded-lg text-cream placeholder:text-cream/40 focus:outline-none focus:border-accent transition-colors text-sm">
+                    <button type="submit" class="px-8 py-4 bg-accent text-white font-semibold text-xs uppercase tracking-[0.15em] rounded-lg hover:bg-accent-l transition-colors btn-primary">Subscribe</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="bg-walnut-d text-cream pt-16 pb-8">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid md:grid-cols-4 gap-12 pb-12 border-b border-white/10">
+                <div class="md:col-span-2">
+                    <h2 class="font-serif text-4xl font-bold mb-4">The Aurae<span class="text-accent">.</span></h2>
+                    <p class="text-cream/50 font-light max-w-sm leading-relaxed mb-6">The fine art of artisan fusion. Bringing cultural elegance to every bite we bake, from our hands to your heart.</p>
+                    <div class="flex gap-4">
+                        <a href="#" class="w-10 h-10 rounded-full border border-white/15 flex items-center justify-center text-cream/60 hover:bg-accent hover:border-accent hover:text-white transition-all"><i data-lucide="instagram" class="w-4 h-4"></i></a>
+                        <a href="#" class="w-10 h-10 rounded-full border border-white/15 flex items-center justify-center text-cream/60 hover:bg-accent hover:border-accent hover:text-white transition-all"><i data-lucide="facebook" class="w-4 h-4"></i></a>
+                        <a href="#" class="w-10 h-10 rounded-full border border-white/15 flex items-center justify-center text-cream/60 hover:bg-accent hover:border-accent hover:text-white transition-all"><i data-lucide="twitter" class="w-4 h-4"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-xs tracking-[0.2em] uppercase mb-6">Quick Links</h4>
+                    <ul class="space-y-3 text-sm text-cream/50">
+                        <li><a href="#shop" class="hover:text-accent transition-colors">Shop All</a></li>
+                        <li><a href="#categories" class="hover:text-accent transition-colors">Categories</a></li>
+                        <li><a href="#story" class="hover:text-accent transition-colors">Our Story</a></li>
+                        <li><a href="#about" class="hover:text-accent transition-colors">About Us</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-xs tracking-[0.2em] uppercase mb-6">Contact</h4>
+                    <ul class="space-y-3 text-sm text-cream/50">
+                        <li class="flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-accent"></i> 123 Pastry Lane, District 1</li>
+                        <li class="flex items-center gap-2"><i data-lucide="phone" class="w-4 h-4 text-accent"></i> +84 123 456 789</li>
+                        <li class="flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4 text-accent"></i> 7 AM – 9 PM Daily</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="flex flex-col md:flex-row justify-between items-center pt-8 text-xs text-cream/30">
+                <p>© 2026 The Aurae Artisan Bakery. Midterm Project.</p>
+                <p>Designed with ♥ by Team Aurae.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ===== CART SIDEBAR ===== -->
+    <div id="cart-overlay" class="fixed inset-0 bg-walnut-d/60 z-[60]" onclick="toggleCart()"></div>
+    <div id="cart-sidebar" class="fixed top-0 right-0 w-full max-w-md h-full bg-cream z-[70] shadow-2xl flex flex-col border-l border-walnut/5">
+        <div class="p-6 border-b border-walnut/10 flex justify-between items-center shrink-0">
+            <h2 class="font-serif text-2xl font-bold text-walnut-d flex items-center gap-3">
+                <i data-lucide="shopping-bag" class="w-5 h-5 text-accent"></i> Your Cart
+            </h2>
+            <button onclick="toggleCart()" class="text-walnut/40 hover:text-walnut-d hover:rotate-90 transition-all duration-300 p-1"><i data-lucide="x" class="w-6 h-6"></i></button>
+        </div>
+        <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-4"></div>
+        <div class="p-6 bg-white/40 border-t border-walnut/10 shrink-0 shadow-[0_-8px_20px_rgba(0,0,0,0.02)]">
+            <div class="flex justify-between items-end mb-5">
+                <span class="font-medium text-walnut/70 text-sm tracking-wide">Estimated Total</span>
+                <span id="cart-total" class="font-serif text-3xl font-bold text-walnut-d">$0.00</span>
+            </div>
+            <button onclick="handleCheckout()" class="w-full py-4 bg-walnut text-cream hover:bg-walnut-d transition-all duration-300 font-semibold tracking-[0.2em] uppercase text-xs flex justify-center items-center gap-3 btn-primary rounded-lg shadow-lg">
+                Proceed to Checkout <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== PRODUCT QUICK-VIEW MODAL ===== -->
+    <div id="product-modal-overlay" class="fixed inset-0 bg-walnut-d/70 z-[80] flex items-center justify-center p-4" onclick="closeModal(event)">
+        <div id="product-modal" class="bg-cream rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div class="grid md:grid-cols-2">
+                <div class="relative">
+                    <img id="modal-img" src="" alt="" class="w-full h-72 md:h-full object-cover rounded-t-2xl md:rounded-l-2xl md:rounded-tr-none">
+                    <button onclick="closeModalDirect()" class="absolute top-4 right-4 md:hidden w-8 h-8 bg-white/90 rounded-full flex items-center justify-center text-walnut shadow-md"><i data-lucide="x" class="w-4 h-4"></i></button>
+                </div>
+                <div class="p-8 flex flex-col">
+                    <span id="modal-cat" class="text-xs tracking-[0.2em] uppercase font-semibold text-accent mb-3"></span>
+                    <h3 id="modal-name" class="font-serif text-3xl font-bold text-walnut-d mb-4"></h3>
+                    <p id="modal-desc" class="text-walnut/70 font-light leading-relaxed mb-6 flex-1"></p>
+                    <div class="flex items-center gap-3 mb-6">
+                        <i data-lucide="leaf" class="w-4 h-4 text-accent"></i>
+                        <span class="text-xs text-walnut/50">Freshly made • Premium quality</span>
+                    </div>
+                    <div class="flex items-center justify-between pt-4 border-t border-walnut/10">
+                        <span id="modal-price" class="font-serif text-3xl font-bold text-walnut-d"></span>
+                        <button id="modal-add-btn" class="px-8 py-3 bg-walnut text-cream text-xs uppercase tracking-widest font-semibold rounded-lg btn-primary hover:bg-walnut-d">
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== TOAST CONTAINER ===== -->
+    <div id="toast-container" class="fixed top-24 right-6 z-[90] flex flex-col gap-3 max-w-sm"></div>
+
+    <!-- ===== BACK TO TOP ===== -->
+    <button id="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" class="fixed bottom-8 right-8 z-50 w-12 h-12 bg-walnut text-cream rounded-full shadow-xl flex items-center justify-center hover:bg-accent transition-all btn-primary">
+        <i data-lucide="chevron-up" class="w-5 h-5"></i>
+    </button>
+
+    <!-- ===== SCRIPT ===== -->
+    <script>
+        // ---- PRODUCT DATA ----
+        const products = [
+            { id: 1, name: "Yuzu Matcha Opéra",   category: "Signature Cake", price: 8.50,  desc: "Delicate layers of almond joconde sponge, vibrant Uji matcha buttercream, and a zesty yuzu ganache glaze. A true East-meets-West masterpiece.", img: "Yuzu%20Matcha%20Op%C3%A9ra.jpg" },
+            { id: 2, name: "Sésame Mille-Feuille", category: "French Pastry",  price: 7.00,  desc: "Shatteringly caramelized puff pastry layered with deeply roasted black sesame diplomat cream and dark chocolate shards.", img: "S%C3%A9same%20Mille-Feuille.jpg" },
+            { id: 3, name: "Earl Grey Choux",      category: "French Pastry",  price: 5.50,  desc: "Crisp craquelin choux buns filled with smooth London Fog earl grey pastry cream, topped with bergamot icing.", img: "Earl%20Grey%20Choux.jpg" },
+            { id: 4, name: "Lychee Rose Macaron",   category: "French Pastry",  price: 3.50,  desc: "Oversized macaron shells sandwiching fresh lychee compote and rose-petal buttercream. Light, floral, unforgettable.", img: "Lychee%20Rose%20Macaron.jpg" },
+            { id: 5, name: "Pandan Croissant",      category: "French Pastry",  price: 6.00,  desc: "Ultra-flaky, hand-laminated croissant with a fragrant pandan coconut custard center and toasted coconut flakes.", img: "Pandan%20Croissant.jpg" },
+            { id: 6, name: "Taro Mont Blanc",       category: "Signature Cake", price: 9.00,  desc: "A fusion twist on the French classic — silky sweet taro vermicelli piped over a crisp meringue base with Chantilly cream.", img: "Taro%20Mont%20Blanc.jpg" },
+            { id: 7, name: "Jasmine Panna Cotta",   category: "Healthy Option", price: 6.50,  desc: "Vegan coconut milk panna cotta steeped in fragrant jasmine tea, topped with seasonal tropical fruit and passion fruit coulis.", img: "Jasmine%20Panna%20Cotta.jpg" },
+            { id: 8, name: "Oolong Madeleine",      category: "Healthy Option", price: 4.00,  desc: "Gluten-free almond flour madeleines infused with the smoky, honeyed notes of Da Hong Pao oolong tea. Delicate perfection.", img: "Oolong%20Madeleine.jpg" },
+            { id: 9, name: "Saigon Éclair",         category: "French Pastry",  price: 5.00,  desc: "Classic choux filled with intense Vietnamese cà phê sữa đá cream, topped with a crackling condensed milk caramel glaze.", img: "Saigon%20%C3%89clair.jpg" },
+            { id: 10, name: "Red Bean Kouign",      category: "Signature Cake", price: 6.50,  desc: "Breton butter cake with caramelized, flaky layers enclosing a subtly sweetened Hokkaido red bean paste heart.", img: "Red%20Bean%20Kouign.jpg" }
+        ];
+
+        let currentFilter = 'All';
+        const cartState = [];
+
+        // ---- INIT ----
+        document.addEventListener('DOMContentLoaded', () => {
+            renderProducts();
+            renderCart();
+            AOS.init({ once: true, duration: 700, easing: 'ease-out-cubic' });
+            lucide.createIcons();
+
+            // Navbar scroll effect
+            window.addEventListener('scroll', () => {
+                const nav = document.getElementById('navbar');
+                const btt = document.getElementById('back-to-top');
+                if (window.scrollY > 50) { nav.classList.add('nav-scrolled', 'py-3'); nav.classList.remove('py-4'); }
+                else { nav.classList.remove('nav-scrolled', 'py-3'); nav.classList.add('py-4'); }
+                if (window.scrollY > 600) btt.classList.add('visible');
+                else btt.classList.remove('visible');
+            });
+        });
+
+        // ---- PRODUCTS ----
+        function renderProducts() {
+            const grid = document.getElementById('product-grid');
+            const filtered = currentFilter === 'All' ? products : products.filter(p => p.category === currentFilter);
+            grid.innerHTML = '';
+            if (filtered.length === 0) {
+                grid.innerHTML = '<p class="col-span-full text-center text-walnut/50 py-20 font-light text-lg">No products found in this category.</p>';
+                return;
+            }
+            filtered.forEach((p, idx) => {
+                const card = document.createElement('div');
+                card.className = 'bg-cream border border-walnut/5 rounded-2xl overflow-hidden card-lift flex flex-col group';
+                card.setAttribute('data-aos', 'fade-up');
+                card.setAttribute('data-aos-delay', (idx % 5) * 80);
+                card.innerHTML = `
+                    <div class="overflow-hidden relative aspect-[4/3] bg-beige/30 cursor-pointer" onclick="openModal(${p.id})">
+                        <img src="${p.img}" alt="${p.name}" class="w-full h-full object-cover img-zoom" loading="lazy">
+                        <div class="absolute inset-0 bg-walnut-d/0 group-hover:bg-walnut-d/20 transition-all duration-300 flex items-center justify-center">
+                            <span class="opacity-0 group-hover:opacity-100 transition-all duration-300 bg-white/90 text-walnut-d text-xs font-semibold uppercase tracking-[0.15em] px-5 py-2.5 rounded-full shadow-md transform translate-y-4 group-hover:translate-y-0">Quick View</span>
+                        </div>
+                        <div class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-[9px] uppercase tracking-wider text-walnut-d font-bold shadow-sm">${p.category}</div>
+                    </div>
+                    <div class="p-5 flex-1 flex flex-col">
+                        <h3 class="font-serif text-xl font-bold text-walnut-d leading-tight mb-2 cursor-pointer hover:text-accent transition-colors" onclick="openModal(${p.id})">${p.name}</h3>
+                        <p class="text-xs text-walnut/60 leading-relaxed font-light mb-4 flex-1 line-clamp-2">${p.desc}</p>
+                        <div class="flex items-center justify-between mt-auto pt-3 border-t border-walnut/5">
+                            <p class="text-walnut-d font-bold text-lg font-serif">$${p.price.toFixed(2)}</p>
+                            <button onclick="addToCart(${p.id})" class="w-10 h-10 rounded-full bg-walnut text-cream flex items-center justify-center hover:bg-accent hover:scale-110 active:scale-95 transition-all duration-300 shadow-md" aria-label="Add to cart">
+                                <i data-lucide="plus" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+            AOS.refresh();
+            lucide.createIcons();
+        }
+
+        function filterProducts(cat) {
+            currentFilter = cat;
+            document.querySelectorAll('.filter-btn').forEach(b => {
+                b.classList.remove('active', 'bg-walnut', 'text-cream');
+                if (b.textContent.trim().includes(cat === 'All' ? 'All' : cat.includes('Signature') ? 'Signature' : cat.includes('French') ? 'French' : 'Healthy')) {
+                    b.classList.add('active', 'bg-walnut', 'text-cream');
+                }
+            });
+            // More reliable active state
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            const map = {'All':'All','Signature Cake':'Signature Cakes','French Pastry':'French Pastries','Healthy Option':'Healthy Options'};
+            document.querySelectorAll('.filter-btn').forEach(b => {
+                if (b.textContent.trim() === map[cat]) b.classList.add('active');
+            });
+            renderProducts();
+        }
+
+        // ---- MODAL ----
+        function openModal(id) {
+            const p = products.find(x => x.id === id);
+            if (!p) return;
+            document.getElementById('modal-img').src = p.img;
+            document.getElementById('modal-img').alt = p.name;
+            document.getElementById('modal-cat').textContent = p.category;
+            document.getElementById('modal-name').textContent = p.name;
+            document.getElementById('modal-desc').textContent = p.desc;
+            document.getElementById('modal-price').textContent = '$' + p.price.toFixed(2);
+            document.getElementById('modal-add-btn').onclick = () => { addToCart(id); closeModalDirect(); };
+            document.getElementById('product-modal-overlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeModal(e) {
+            if (e.target === e.currentTarget) closeModalDirect();
+        }
+        function closeModalDirect() {
+            document.getElementById('product-modal-overlay').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // ---- CART ----
+        function toggleCart() {
+            document.getElementById('cart-sidebar').classList.toggle('active');
+            document.getElementById('cart-overlay').classList.toggle('active');
+        }
+
+        function addToCart(id) {
+            const p = products.find(x => x.id === id);
+            if (!p) return;
+            const existing = cartState.find(i => i.id === id);
+            if (existing) existing.qty++;
+            else cartState.push({ ...p, qty: 1 });
+            renderCart();
+            showToast(`${p.name} added to cart!`);
+            if (!document.getElementById('cart-sidebar').classList.contains('active')) toggleCart();
+        }
+
+        function updateQty(id, delta) {
+            const item = cartState.find(i => i.id === id);
+            if (!item) return;
+            item.qty += delta;
+            if (item.qty <= 0) removeFromCart(id);
+            else renderCart();
+        }
+
+        function removeFromCart(id) {
+            const idx = cartState.findIndex(i => i.id === id);
+            if (idx > -1) cartState.splice(idx, 1);
+            renderCart();
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cart-items');
+            const navCount = document.getElementById('nav-cart-count');
+            const cartTotal = document.getElementById('cart-total');
+            let total = 0, count = 0;
+
+            if (cartState.length === 0) {
+                container.innerHTML = `
+                    <div class="h-full flex flex-col items-center justify-center text-center opacity-60 py-20">
+                        <i data-lucide="shopping-cart" class="w-16 h-16 text-walnut/20 mb-4"></i>
+                        <p class="text-walnut font-medium mb-1">Your cart is empty</p>
+                        <p class="text-sm text-walnut/50">Discover our collections to fill it.</p>
+                    </div>`;
+            } else {
+                container.innerHTML = cartState.map(item => {
+                    total += item.price * item.qty;
+                    count += item.qty;
+                    return `
+                    <div class="flex gap-4 items-center bg-white p-3 rounded-xl shadow-sm border border-walnut/5">
+                        <img src="${item.img}" class="w-20 h-20 object-cover rounded-lg" alt="${item.name}">
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-serif text-base font-bold text-walnut-d mb-1 truncate">${item.name}</h4>
+                            <p class="text-sm text-walnut/60 mb-2">$${item.price.toFixed(2)}</p>
+                            <div class="flex items-center gap-1 bg-cream rounded-lg w-fit border border-walnut/10 px-1 py-0.5">
+                                <button onclick="updateQty(${item.id},-1)" class="w-7 h-7 flex items-center justify-center text-walnut rounded-md hover:bg-white transition text-sm font-bold">−</button>
+                                <span class="text-xs font-bold w-6 text-center">${item.qty}</span>
+                                <button onclick="updateQty(${item.id},1)" class="w-7 h-7 flex items-center justify-center text-walnut rounded-md hover:bg-white transition text-sm font-bold">+</button>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-end gap-3">
+                            <button onclick="removeFromCart(${item.id})" class="text-walnut/25 hover:text-red-500 transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            <span class="font-bold text-walnut-d text-sm">$${(item.price * item.qty).toFixed(2)}</span>
+                        </div>
+                    </div>`;
+                }).join('');
+            }
+            // Recount if total wasn't accumulated (happens when cartState is non-empty)
+            if (cartState.length > 0 && total === 0) {
+                cartState.forEach(i => { total += i.price * i.qty; count += i.qty; });
+            }
+            navCount.textContent = count;
+            cartTotal.textContent = '$' + total.toFixed(2);
+            lucide.createIcons();
+        }
+
+        function handleCheckout() {
+            if (cartState.length === 0) { showToast('Your cart is empty!', 'warning'); return; }
+            showToast('Thank you for your order! 🎂', 'success');
+            cartState.length = 0;
+            renderCart();
+            setTimeout(toggleCart, 1500);
+        }
+
+        // ---- TOAST NOTIFICATIONS ----
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const colors = type === 'success' ? 'bg-walnut text-cream' : type === 'warning' ? 'bg-accent text-white' : 'bg-walnut text-cream';
+            toast.className = `${colors} px-6 py-4 rounded-xl shadow-2xl text-sm font-medium flex items-center gap-3 animate-toast-in`;
+            const icon = type === 'success' ? 'check-circle' : 'alert-circle';
+            toast.innerHTML = `<i data-lucide="${icon}" class="w-5 h-5 shrink-0"></i><span>${message}</span>`;
+            container.appendChild(toast);
+            lucide.createIcons();
+            setTimeout(() => {
+                toast.classList.remove('animate-toast-in');
+                toast.classList.add('animate-toast-out');
+                setTimeout(() => toast.remove(), 400);
+            }, 2500);
+        }
+
+        // ---- MOBILE MENU ----
+        function toggleMobileMenu() {
+            document.getElementById('mobile-menu').classList.toggle('active');
+            document.getElementById('mobile-menu-overlay').classList.toggle('active');
+        }
+
+        // ---- NEWSLETTER ----
+        function handleNewsletter(e) {
+            e.preventDefault();
+            showToast('Welcome to The Aurae family! 💌', 'success');
+            e.target.reset();
+        }
+    </script>
+</body>
+</html>
